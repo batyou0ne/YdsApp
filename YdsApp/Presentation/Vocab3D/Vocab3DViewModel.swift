@@ -234,30 +234,19 @@ public final class Vocab3DViewModel: ObservableObject {
 
         await vocabularyRepository.updateVocabCardProgress(evaluation.updatedCard)
 
+        let outcome = calculateEstimatedScoreUseCase.recordVocabOutcome(
+            card: evaluation.updatedCard,
+            isCorrect: isCorrect,
+            currentProfile: state.profile,
+            earnedDelta: evaluation.scoreDeltaEarned,
+            date: now
+        )
+
         var updatedProfile = state.profile
         if evaluation.scoreDeltaEarned > 0 {
-            let newScore = min(
-                100.0,
-                ((updatedProfile.currentEstimatedScore + evaluation.scoreDeltaEarned) * 20.0).rounded() / 20.0
-            )
-            let newTodayDelta = ((updatedProfile.todayEarnedScoreDelta + evaluation.scoreDeltaEarned) * 20.0).rounded() / 20.0
-
-            updatedProfile = UserStudyProfile(
-                hasCompletedOnboarding: updatedProfile.hasCompletedOnboarding,
-                targetExam: updatedProfile.targetExam,
-                academicTrack: updatedProfile.academicTrack,
-                initialEstimatedScore: updatedProfile.initialEstimatedScore,
-                currentEstimatedScore: newScore,
-                targetScore: updatedProfile.targetScore,
-                daysRemainingUntilExam: updatedProfile.daysRemainingUntilExam,
-                streakDays: updatedProfile.streakDays,
-                todayEarnedScoreDelta: newTodayDelta,
-                subscriptionTier: updatedProfile.subscriptionTier,
-                dailyFreeXRayUsedCount: updatedProfile.dailyFreeXRayUsedCount,
-                completedPrescriptionStepsToday: updatedProfile.completedPrescriptionStepsToday,
-                weakestCategories: updatedProfile.weakestCategories
-            )
+            updatedProfile = outcome.updatedProfile
             await userStudyRepository.saveUserProfile(updatedProfile)
+            await userStudyRepository.appendScoreEvent(outcome.scoreEvent)
         }
 
         var updatedCards = state.cards
@@ -290,7 +279,7 @@ public final class Vocab3DViewModel: ObservableObject {
         )
 
         let deltaBadge: String? = evaluation.scoreDeltaEarned > 0
-            ? String(format: "+%.2f puan", evaluation.scoreDeltaEarned)
+            ? outcome.scoreEvent.transitionDisplayTr
             : nil
 
         updateState(

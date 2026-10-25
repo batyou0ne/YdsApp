@@ -38,6 +38,7 @@ public struct DashboardViewState: Equatable, Sendable {
     public let paywallTriggerReasonTr: String
     public let workoutCompletionBannerTr: String?
     public let requestedNavigationTab: AppMainTab?
+    public let recentScoreEvents: [ScoreEvent]
 
     public init(
         profile: UserStudyProfile = UserStudyProfile(hasCompletedOnboarding: true),
@@ -54,7 +55,8 @@ public struct DashboardViewState: Equatable, Sendable {
         isPaywallPresented: Bool = false,
         paywallTriggerReasonTr: String = "Günlük reçetenin tamamını (%100 - 14 adım) ve sınırsız Cümle Röntgenini açmak için Pro'ya geç.",
         workoutCompletionBannerTr: String? = nil,
-        requestedNavigationTab: AppMainTab? = nil
+        requestedNavigationTab: AppMainTab? = nil,
+        recentScoreEvents: [ScoreEvent] = []
     ) {
         self.profile = profile
         self.reportCard = reportCard
@@ -63,6 +65,7 @@ public struct DashboardViewState: Equatable, Sendable {
         self.paywallTriggerReasonTr = paywallTriggerReasonTr
         self.workoutCompletionBannerTr = workoutCompletionBannerTr
         self.requestedNavigationTab = requestedNavigationTab
+        self.recentScoreEvents = recentScoreEvents
     }
 
     public var formattedCurrentScore: String {
@@ -86,7 +89,10 @@ public struct DashboardViewState: Equatable, Sendable {
     }
 
     public var scoreTrajectorySummaryTr: String {
-        String(format: "%.2f -> %.2f", profile.initialEstimatedScore, profile.currentEstimatedScore)
+        CalculateEstimatedScoreUseCase.formatScoreTransition(
+            before: profile.initialEstimatedScore,
+            after: profile.currentEstimatedScore
+        )
     }
 
     public var gaugeProgressFraction: Double {

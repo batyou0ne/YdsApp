@@ -108,53 +108,36 @@ public final class MistakeVaultViewModel: ObservableObject {
         var currentProfile = await userStudyRepository.getUserProfile()
         let currentRecords = await userStudyRepository.getCategoryMasteries()
 
+        var feedbackBanner: String = ""
+
         if isCorrect && !wasAlreadyResolved {
             // Hata Kumbarası kurtarma ödülü: +0.25 puan!
-            let recoveryDelta = 0.25
-            let newScore = min(100.0, ((currentProfile.currentEstimatedScore + recoveryDelta) * 20.0).rounded() / 20.0)
-            let newTodayDelta = ((currentProfile.todayEarnedScoreDelta + recoveryDelta) * 20.0).rounded() / 20.0
-
-            let updatedRecords: [CategoryMasteryRecord] = currentRecords.map { record in
-                guard record.category == question.category else { return record }
-                let boostedMastery = min(0.98, record.currentMasteryRatio + 0.04)
-                return CategoryMasteryRecord(
-                    category: record.category,
-                    currentMasteryRatio: boostedMastery,
-                    targetMasteryRatio: record.targetMasteryRatio,
-                    questionsSolvedCount: record.questionsSolvedCount + 1,
-                    correctAnswersCount: record.correctAnswersCount + 1
-                )
-            }
-
-            currentProfile = UserStudyProfile(
-                hasCompletedOnboarding: currentProfile.hasCompletedOnboarding,
-                targetExam: currentProfile.targetExam,
-                academicTrack: currentProfile.academicTrack,
-                initialEstimatedScore: currentProfile.initialEstimatedScore,
-                currentEstimatedScore: newScore,
-                targetScore: currentProfile.targetScore,
-                daysRemainingUntilExam: currentProfile.daysRemainingUntilExam,
-                streakDays: currentProfile.streakDays,
-                todayEarnedScoreDelta: newTodayDelta,
-                subscriptionTier: currentProfile.subscriptionTier,
-                dailyFreeXRayUsedCount: currentProfile.dailyFreeXRayUsedCount,
-                completedPrescriptionStepsToday: currentProfile.completedPrescriptionStepsToday,
-                weakestCategories: currentProfile.weakestCategories
+            let outcome = calculateEstimatedScoreUseCase.recordMistakeReviewOutcome(
+                profile: currentProfile,
+                category: question.category,
+                isCorrect: true,
+                records: currentRecords,
+                recoveryDelta: 0.25
             )
 
-            await userStudyRepository.saveUserProfile(currentProfile)
-            await userStudyRepository.saveCategoryMasteries(updatedRecords)
+            currentProfile = outcome.updatedProfile
+            await userStudyRepository.saveUserProfile(outcome.updatedProfile)
+            await userStudyRepository.saveCategoryMasteries(outcome.updatedRecords)
+            await userStudyRepository.appendScoreEvent(outcome.scoreEvent)
+
+            feedbackBanner = "ÇÖZÜLDÜ ✓ • Bu kuralı başarıyla doğruladın: \(outcome.scoreEvent.transitionDisplayTr)"
+        } else if isCorrect {
+            feedbackBanner = "Tebrikler! Bu kuralı zaten çözmüştün."
         }
 
         let updatedMistakes = await mistakeVaultRepository.getMistakeItems()
 
-        let feedbackBanner: String
-        if isCorrect {
-            feedbackBanner = "ÇÖZÜLDÜ ✓ • Bu kuralı başarıyla doğruladın ve tahmini sınav puanına +0.25 puan geri eklendi!"
-        } else if let wrongOpt = question.options.first(where: { $0.id == optionId }) {
-            feedbackBanner = "Dikkat! Yine tuzağa düştün: \(wrongOpt.distractorCoachFeedback.winningRuleTr)"
-        } else {
-            feedbackBanner = "Doğru şık: \(question.correctOptionId). Sınav kısa yolunu tekrar incele."
+        if !isCorrect {
+            if let wrongOpt = question.options.first(where: { $0.id == optionId }) {
+                feedbackBanner = "Dikkat! Yine tuzağa düştün: \(wrongOpt.distractorCoachFeedback.winningRuleTr)"
+            } else {
+                feedbackBanner = "Doğru şık: \(question.correctOptionId). Sınav kısa yolunu tekrar incele."
+            }
         }
 
         updateState(

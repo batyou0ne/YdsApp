@@ -39,6 +39,8 @@ public struct MicroSprintViewState: Equatable, Sendable {
     public let sessionCorrectCount: Int
     public let sessionSolvedCount: Int
     public let sessionEarnedScoreDelta: Double
+    public let latestScoreExplanation: ScoreChangeExplanation?
+    public let latestScoreTransitionText: String?
     public let isPaywallPresented: Bool
     public let paywallReasonTr: String
 
@@ -61,6 +63,8 @@ public struct MicroSprintViewState: Equatable, Sendable {
         sessionCorrectCount: Int = 0,
         sessionSolvedCount: Int = 0,
         sessionEarnedScoreDelta: Double = 0.0,
+        latestScoreExplanation: ScoreChangeExplanation? = nil,
+        latestScoreTransitionText: String? = nil,
         isPaywallPresented: Bool = false,
         paywallReasonTr: String = "Düştüğün sınav tuzağını (trapReason) ve doğru şık kısa yolunu (winningRule) bulanıklık olmadan görmek için YDS Pro'ya geç."
     ) {
@@ -82,6 +86,8 @@ public struct MicroSprintViewState: Equatable, Sendable {
         self.sessionCorrectCount = sessionCorrectCount
         self.sessionSolvedCount = sessionSolvedCount
         self.sessionEarnedScoreDelta = sessionEarnedScoreDelta
+        self.latestScoreExplanation = latestScoreExplanation
+        self.latestScoreTransitionText = latestScoreTransitionText
         self.isPaywallPresented = isPaywallPresented
         self.paywallReasonTr = paywallReasonTr
     }

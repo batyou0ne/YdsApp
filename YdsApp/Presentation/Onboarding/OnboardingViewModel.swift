@@ -553,6 +553,7 @@ public final class OnboardingViewModel: ObservableObject {
         )
 
         let baseProfile = baseResult.calibratedProfile
+        let hasMismatch = state.diagnosticOutcome?.declaredScoreMismatchNoteTr != nil
         let finalProfile = UserStudyProfile(
             hasCompletedOnboarding: true,
             targetExam: baseProfile.targetExam,
@@ -566,7 +567,14 @@ public final class OnboardingViewModel: ObservableObject {
             subscriptionTier: tier,
             dailyFreeXRayUsedCount: 0,
             completedPrescriptionStepsToday: 0,
-            weakestCategories: baseProfile.weakestCategories
+            weakestCategories: baseProfile.weakestCategories,
+            scoreConfidenceMargin: baseProfile.scoreConfidenceMargin ?? 5.0,
+            todayLossScoreDelta: 0.0,
+            totalQuestionsSolvedCount: baseProfile.totalQuestionsSolvedCount,
+            consecutiveCorrectByCategory: [:],
+            declaredBaselineScore: state.declaredBaselineScore,
+            hasScoreDiscrepancy: hasMismatch,
+            daysActiveCount: 1
         )
 
         await userStudyRepository.saveUserProfile(finalProfile)

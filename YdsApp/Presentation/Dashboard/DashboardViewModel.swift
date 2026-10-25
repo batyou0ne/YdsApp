@@ -102,11 +102,13 @@ public final class DashboardViewModel: ObservableObject {
             sprintQuestions: sprints,
             mistakeItems: mistakes
         )
+        let events = await userStudyRepository.getScoreEvents(since: nil)
 
         updateState(
             profile: profile,
             reportCard: reportCard,
-            dailyPrescription: prescription
+            dailyPrescription: prescription,
+            recentScoreEvents: events
         )
     }
 
@@ -236,7 +238,8 @@ public final class DashboardViewModel: ObservableObject {
         isPaywallPresented: Bool? = nil,
         paywallTriggerReasonTr: String? = nil,
         workoutCompletionBannerTr: String?? = nil,
-        requestedNavigationTab: AppMainTab?? = nil
+        requestedNavigationTab: AppMainTab?? = nil,
+        recentScoreEvents: [ScoreEvent]? = nil
     ) {
         state = DashboardViewState(
             profile: profile ?? state.profile,
@@ -245,7 +248,8 @@ public final class DashboardViewModel: ObservableObject {
             isPaywallPresented: isPaywallPresented ?? state.isPaywallPresented,
             paywallTriggerReasonTr: paywallTriggerReasonTr ?? state.paywallTriggerReasonTr,
             workoutCompletionBannerTr: workoutCompletionBannerTr ?? state.workoutCompletionBannerTr,
-            requestedNavigationTab: requestedNavigationTab ?? state.requestedNavigationTab
+            requestedNavigationTab: requestedNavigationTab ?? state.requestedNavigationTab,
+            recentScoreEvents: recentScoreEvents ?? state.recentScoreEvents
         )
     }
 }

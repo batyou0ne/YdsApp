@@ -6,6 +6,8 @@ public protocol UserStudyRepository: Sendable {
     func saveUserProfile(_ profile: UserStudyProfile) async
     func getCategoryMasteries() async -> [CategoryMasteryRecord]
     func saveCategoryMasteries(_ records: [CategoryMasteryRecord]) async
+    func appendScoreEvent(_ event: ScoreEvent) async
+    func getScoreEvents(since date: Date?) async -> [ScoreEvent]
 }
 
 /// Cümle Röntgeni (Sentence X-Ray) veri erişim protokolü

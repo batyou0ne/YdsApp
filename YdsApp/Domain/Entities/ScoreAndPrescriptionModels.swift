@@ -52,6 +52,109 @@ public struct CategoryMasteryRecord: Identifiable, Codable, Equatable, Sendable 
     }
 }
 
+/// Canlı Puan Değişiminin Kaynağı (iOS <-> Android 1:1 Enum)
+public enum ScoreSource: String, Codable, CaseIterable, Equatable, Sendable {
+    case sprint = "SPRINT"
+    case xray = "XRAY"
+    case vocab = "VOCAB"
+    case checkIn = "CHECK_IN"
+
+    public var titleTr: String {
+        switch self {
+        case .sprint: return "Mikro-Sprint"
+        case .xray: return "Cümle Röntgeni"
+        case .vocab: return "3B Kelime"
+        case .checkIn: return "Haftalık Check-In"
+        }
+    }
+}
+
+/// Puan Değişim Açıklaması (Pedagojik Ceza Yerine Açık Tespiti)
+public struct ScoreChangeExplanation: Codable, Equatable, Sendable {
+    public let deltaPoints: Double
+    public let headlineTr: String
+    public let reasonTr: String
+    public let nextActionTr: String
+
+    public init(
+        deltaPoints: Double,
+        headlineTr: String,
+        reasonTr: String,
+        nextActionTr: String
+    ) {
+        self.deltaPoints = deltaPoints
+        self.headlineTr = headlineTr
+        self.reasonTr = reasonTr
+        self.nextActionTr = nextActionTr
+    }
+
+    public var formattedDeltaTr: String {
+        let sign = deltaPoints >= 0 ? "+" : ""
+        return String(format: "%@%.2f puan", sign, deltaPoints)
+    }
+}
+
+/// Borsa grafiği gibi canlı puan geçmişi kaydı (ScoreEvent)
+public struct ScoreEvent: Identifiable, Codable, Equatable, Sendable {
+    public let id: String
+    public let date: Date
+    public let source: ScoreSource
+    public let category: QuestionCategory?
+    public let delta: Double
+    public let scoreBefore: Double
+    public let scoreAfter: Double
+    public let explanation: ScoreChangeExplanation?
+
+    public init(
+        id: String = UUID().uuidString,
+        date: Date = Date(),
+        source: ScoreSource,
+        category: QuestionCategory? = nil,
+        delta: Double,
+        scoreBefore: Double,
+        scoreAfter: Double,
+        explanation: ScoreChangeExplanation? = nil
+    ) {
+        self.id = id
+        self.date = date
+        self.source = source
+        self.category = category
+        self.delta = delta
+        self.scoreBefore = scoreBefore
+        self.scoreAfter = scoreAfter
+        self.explanation = explanation
+    }
+
+    /// "48.75 ➔ 49.15 (+0.40 puan)" gösterim formatı
+    public var transitionDisplayTr: String {
+        let sign = delta >= 0 ? "+" : ""
+        return String(format: "%.2f ➔ %.2f (%@%.2f puan)", scoreBefore, scoreAfter, sign, delta)
+    }
+}
+
+/// Puan motorunun işlem dönüş tipi (Puan, karne, açıklama ve olay kaydı)
+public struct ScoreOutcomeResult: Codable, Equatable, Sendable {
+    public let updatedProfile: UserStudyProfile
+    public let updatedRecords: [CategoryMasteryRecord]
+    public let earnedDelta: Double
+    public let explanation: ScoreChangeExplanation
+    public let scoreEvent: ScoreEvent
+
+    public init(
+        updatedProfile: UserStudyProfile,
+        updatedRecords: [CategoryMasteryRecord],
+        earnedDelta: Double,
+        explanation: ScoreChangeExplanation,
+        scoreEvent: ScoreEvent
+    ) {
+        self.updatedProfile = updatedProfile
+        self.updatedRecords = updatedRecords
+        self.earnedDelta = earnedDelta
+        self.explanation = explanation
+        self.scoreEvent = scoreEvent
+    }
+}
+
 /// Canlı Puan Tahmin Motoru tarafından üretilen genel karne özeti
 public struct ScoreReportCard: Codable, Equatable, Sendable {
     public let estimatedTotalScore: Double
@@ -61,6 +164,7 @@ public struct ScoreReportCard: Codable, Equatable, Sendable {
     public let todayEarnedDelta: Double
     public let categoryRecords: [CategoryMasteryRecord]
     public let topWeakCategories: [QuestionCategory]
+    public let scoreConfidenceMargin: Double?
 
     public init(
         estimatedTotalScore: Double,
@@ -69,7 +173,8 @@ public struct ScoreReportCard: Codable, Equatable, Sendable {
         neededScore: Double,
         todayEarnedDelta: Double,
         categoryRecords: [CategoryMasteryRecord],
-        topWeakCategories: [QuestionCategory]
+        topWeakCategories: [QuestionCategory],
+        scoreConfidenceMargin: Double? = 5.0
     ) {
         self.estimatedTotalScore = estimatedTotalScore
         self.initialBaselineScore = initialBaselineScore
@@ -78,6 +183,46 @@ public struct ScoreReportCard: Codable, Equatable, Sendable {
         self.todayEarnedDelta = todayEarnedDelta
         self.categoryRecords = categoryRecords
         self.topWeakCategories = topWeakCategories
+        self.scoreConfidenceMargin = scoreConfidenceMargin
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case estimatedTotalScore
+        case initialBaselineScore
+        case targetScore
+        case neededScore
+        case todayEarnedDelta
+        case categoryRecords
+        case topWeakCategories
+        case scoreConfidenceMargin
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.estimatedTotalScore = try c.decode(Double.self, forKey: .estimatedTotalScore)
+        self.initialBaselineScore = try c.decode(Double.self, forKey: .initialBaselineScore)
+        self.targetScore = try c.decode(Double.self, forKey: .targetScore)
+        self.neededScore = try c.decode(Double.self, forKey: .neededScore)
+        self.todayEarnedDelta = try c.decode(Double.self, forKey: .todayEarnedDelta)
+        self.categoryRecords = try c.decode([CategoryMasteryRecord].self, forKey: .categoryRecords)
+        self.topWeakCategories = try c.decode([QuestionCategory].self, forKey: .topWeakCategories)
+        self.scoreConfidenceMargin = try c.decodeIfPresent(Double.self, forKey: .scoreConfidenceMargin) ?? 5.0
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(estimatedTotalScore, forKey: .estimatedTotalScore)
+        try c.encode(initialBaselineScore, forKey: .initialBaselineScore)
+        try c.encode(targetScore, forKey: .targetScore)
+        try c.encode(neededScore, forKey: .neededScore)
+        try c.encode(todayEarnedDelta, forKey: .todayEarnedDelta)
+        try c.encode(categoryRecords, forKey: .categoryRecords)
+        try c.encode(topWeakCategories, forKey: .topWeakCategories)
+        try c.encodeIfPresent(scoreConfidenceMargin, forKey: .scoreConfidenceMargin)
+    }
+
+    public var formattedConfidenceMarginTr: String {
+        String(format: "±%.2f puan", scoreConfidenceMargin ?? 5.0)
     }
 }
 

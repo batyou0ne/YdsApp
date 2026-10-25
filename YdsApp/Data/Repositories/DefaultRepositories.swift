@@ -4,9 +4,11 @@ import Foundation
 public actor DefaultUserStudyRepository: UserStudyRepository {
     private let profileStorageKey = "yds.app.user_study_profile.v1"
     private let masteryStorageKey = "yds.app.category_masteries.v1"
+    private let scoreEventsStorageKey = "yds.app.score_events.v1"
 
     private var cachedProfile: UserStudyProfile
     private var cachedMasteries: [CategoryMasteryRecord]
+    private var cachedScoreEvents: [ScoreEvent]
 
     public init() {
         let defaults = UserDefaults.standard
@@ -23,6 +25,13 @@ public actor DefaultUserStudyRepository: UserStudyRepository {
             self.cachedMasteries = decoded
         } else {
             self.cachedMasteries = MistakeVaultSeedData.defaultCategoryMasteries
+        }
+
+        if let data = defaults.data(forKey: scoreEventsStorageKey),
+           let decoded = try? JSONDecoder().decode([ScoreEvent].self, from: data) {
+            self.cachedScoreEvents = decoded
+        } else {
+            self.cachedScoreEvents = []
         }
     }
 
@@ -46,6 +55,20 @@ public actor DefaultUserStudyRepository: UserStudyRepository {
         if let data = try? JSONEncoder().encode(records) {
             UserDefaults.standard.set(data, forKey: masteryStorageKey)
         }
+    }
+
+    public func appendScoreEvent(_ event: ScoreEvent) async {
+        cachedScoreEvents.append(event)
+        if let data = try? JSONEncoder().encode(cachedScoreEvents) {
+            UserDefaults.standard.set(data, forKey: scoreEventsStorageKey)
+        }
+    }
+
+    public func getScoreEvents(since date: Date? = nil) async -> [ScoreEvent] {
+        guard let date else {
+            return cachedScoreEvents
+        }
+        return cachedScoreEvents.filter { $0.date >= date }
     }
 }
 

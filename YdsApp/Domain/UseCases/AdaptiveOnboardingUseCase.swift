@@ -110,6 +110,7 @@ public struct RunAdaptiveOnboardingDiagnosticUseCase: Sendable {
             )
         }
 
+        let hasMismatch = outcome.declaredScoreMismatchNoteTr != nil
         let profile = UserStudyProfile(
             hasCompletedOnboarding: true,
             targetExam: targetExam,
@@ -123,7 +124,11 @@ public struct RunAdaptiveOnboardingDiagnosticUseCase: Sendable {
             subscriptionTier: subscriptionTier,
             dailyFreeXRayUsedCount: 0,
             completedPrescriptionStepsToday: 0,
-            weakestCategories: weakest
+            weakestCategories: weakest,
+            scoreConfidenceMargin: 5.0,
+            declaredBaselineScore: declaredBaseline,
+            hasScoreDiscrepancy: hasMismatch,
+            daysActiveCount: 1
         )
 
         let result = EvaluateDiagnosticTestUseCase.DiagnosticEvaluationResult(

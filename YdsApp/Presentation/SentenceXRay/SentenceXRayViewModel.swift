@@ -199,39 +199,22 @@ public final class SentenceXRayViewModel: ObservableObject {
             return
         }
 
-        let current = state.profile
-        let delta = 0.08
-        let newEstimatedScore = min(100.0, ((current.currentEstimatedScore + delta) * 100.0).rounded() / 100.0)
-        let newTodayDelta = ((current.todayEarnedScoreDelta + delta) * 100.0).rounded() / 100.0
-
-        let updatedProfile = UserStudyProfile(
-            hasCompletedOnboarding: current.hasCompletedOnboarding,
-            targetExam: current.targetExam,
-            academicTrack: current.academicTrack,
-            initialEstimatedScore: current.initialEstimatedScore,
-            currentEstimatedScore: newEstimatedScore,
-            targetScore: current.targetScore,
-            daysRemainingUntilExam: current.daysRemainingUntilExam,
-            streakDays: current.streakDays,
-            todayEarnedScoreDelta: newTodayDelta,
-            subscriptionTier: current.subscriptionTier,
-            dailyFreeXRayUsedCount: current.dailyFreeXRayUsedCount,
-            completedPrescriptionStepsToday: current.completedPrescriptionStepsToday,
-            weakestCategories: current.weakestCategories
+        let outcome = calculateEstimatedScoreUseCase.recordSentenceXRayOutcome(
+            profile: state.profile,
+            item: item,
+            earnedDelta: 0.10
         )
 
-        await userStudyRepository.saveUserProfile(updatedProfile)
+        await userStudyRepository.saveUserProfile(outcome.updatedProfile)
+        await userStudyRepository.appendScoreEvent(outcome.scoreEvent)
 
         var updatedMasteredIds = state.masteredItemIds
         updatedMasteredIds.insert(item.id)
 
-        let toast = String(
-            format: "Cümle İskeleti Çözüldü! Tahmini sınav puanına +0.08 puan eklendi (Yeni Puan: %.2f).",
-            newEstimatedScore
-        )
+        let toast = "Cümle İskeleti Çözüldü! \(outcome.scoreEvent.transitionDisplayTr)"
 
         updateState(
-            profile: updatedProfile,
+            profile: outcome.updatedProfile,
             scoreToastMessageTr: .some(toast),
             masteredItemIds: updatedMasteredIds
         )

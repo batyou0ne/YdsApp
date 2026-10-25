@@ -260,6 +260,7 @@ public final class MicroSprintViewModel: ObservableObject {
 
             let outcome = calculateEstimatedScoreUseCase.recordQuestionOutcome(
                 category: question.category,
+                difficultyBand: question.difficultyBand,
                 isCorrect: isCorrect,
                 responseTimeSeconds: elapsedSeconds,
                 timeLimitSeconds: question.timeLimitSeconds,
@@ -269,6 +270,7 @@ public final class MicroSprintViewModel: ObservableObject {
 
             await userStudyRepository.saveUserProfile(outcome.updatedProfile)
             await userStudyRepository.saveCategoryMasteries(outcome.updatedRecords)
+            await userStudyRepository.appendScoreEvent(outcome.scoreEvent)
 
             if !isCorrect {
                 await mistakeVaultRepository.recordMistake(
@@ -288,7 +290,9 @@ public final class MicroSprintViewModel: ObservableObject {
                 isDistractorDetailsBlurred: updatedBlur,
                 sessionCorrectCount: state.sessionCorrectCount + (isCorrect ? 1 : 0),
                 sessionSolvedCount: state.sessionSolvedCount + 1,
-                sessionEarnedScoreDelta: newSessionDelta
+                sessionEarnedScoreDelta: newSessionDelta,
+                latestScoreExplanation: .some(outcome.explanation),
+                latestScoreTransitionText: .some(outcome.scoreEvent.transitionDisplayTr)
             )
         }
     }
@@ -363,6 +367,8 @@ public final class MicroSprintViewModel: ObservableObject {
         sessionCorrectCount: Int? = nil,
         sessionSolvedCount: Int? = nil,
         sessionEarnedScoreDelta: Double? = nil,
+        latestScoreExplanation: ScoreChangeExplanation?? = nil,
+        latestScoreTransitionText: String?? = nil,
         isPaywallPresented: Bool? = nil,
         paywallReasonTr: String? = nil
     ) {
@@ -385,6 +391,8 @@ public final class MicroSprintViewModel: ObservableObject {
             sessionCorrectCount: sessionCorrectCount ?? state.sessionCorrectCount,
             sessionSolvedCount: sessionSolvedCount ?? state.sessionSolvedCount,
             sessionEarnedScoreDelta: sessionEarnedScoreDelta ?? state.sessionEarnedScoreDelta,
+            latestScoreExplanation: latestScoreExplanation ?? state.latestScoreExplanation,
+            latestScoreTransitionText: latestScoreTransitionText ?? state.latestScoreTransitionText,
             isPaywallPresented: isPaywallPresented ?? state.isPaywallPresented,
             paywallReasonTr: paywallReasonTr ?? state.paywallReasonTr
         )
