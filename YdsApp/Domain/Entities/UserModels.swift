@@ -154,6 +154,8 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
     public let declaredBaselineScore: Double?
     public let hasScoreDiscrepancy: Bool
     public let daysActiveCount: Int
+    public let lastCheckInDate: Date?
+    public let lastCheckInScore: Double?
 
     public init(
         hasCompletedOnboarding: Bool = false,
@@ -175,7 +177,9 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         consecutiveCorrectByCategory: [String: Int] = [:],
         declaredBaselineScore: Double? = nil,
         hasScoreDiscrepancy: Bool = false,
-        daysActiveCount: Int = 1
+        daysActiveCount: Int = 1,
+        lastCheckInDate: Date? = nil,
+        lastCheckInScore: Double? = nil
     ) {
         self.hasCompletedOnboarding = hasCompletedOnboarding
         self.targetExam = targetExam
@@ -197,6 +201,8 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         self.declaredBaselineScore = declaredBaselineScore
         self.hasScoreDiscrepancy = hasScoreDiscrepancy
         self.daysActiveCount = daysActiveCount
+        self.lastCheckInDate = lastCheckInDate
+        self.lastCheckInScore = lastCheckInScore
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -220,6 +226,8 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         case declaredBaselineScore
         case hasScoreDiscrepancy
         case daysActiveCount
+        case lastCheckInDate
+        case lastCheckInScore
     }
 
     public init(from decoder: Decoder) throws {
@@ -244,6 +252,8 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         self.declaredBaselineScore = try c.decodeIfPresent(Double.self, forKey: .declaredBaselineScore)
         self.hasScoreDiscrepancy = try c.decodeIfPresent(Bool.self, forKey: .hasScoreDiscrepancy) ?? false
         self.daysActiveCount = try c.decodeIfPresent(Int.self, forKey: .daysActiveCount) ?? 1
+        self.lastCheckInDate = try c.decodeIfPresent(Date.self, forKey: .lastCheckInDate)
+        self.lastCheckInScore = try c.decodeIfPresent(Double.self, forKey: .lastCheckInScore)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -268,6 +278,8 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         try c.encodeIfPresent(declaredBaselineScore, forKey: .declaredBaselineScore)
         try c.encode(hasScoreDiscrepancy, forKey: .hasScoreDiscrepancy)
         try c.encode(daysActiveCount, forKey: .daysActiveCount)
+        try c.encodeIfPresent(lastCheckInDate, forKey: .lastCheckInDate)
+        try c.encodeIfPresent(lastCheckInScore, forKey: .lastCheckInScore)
     }
 
     public var neededScore: Double {
@@ -322,7 +334,9 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         consecutiveCorrectByCategory: [String: Int]? = nil,
         declaredBaselineScore: Double? = nil,
         hasScoreDiscrepancy: Bool? = nil,
-        daysActiveCount: Int? = nil
+        daysActiveCount: Int? = nil,
+        lastCheckInDate: Date?? = nil,
+        lastCheckInScore: Double?? = nil
     ) -> UserStudyProfile {
         UserStudyProfile(
             hasCompletedOnboarding: hasCompletedOnboarding ?? self.hasCompletedOnboarding,
@@ -344,7 +358,9 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
             consecutiveCorrectByCategory: consecutiveCorrectByCategory ?? self.consecutiveCorrectByCategory,
             declaredBaselineScore: declaredBaselineScore ?? self.declaredBaselineScore,
             hasScoreDiscrepancy: hasScoreDiscrepancy ?? self.hasScoreDiscrepancy,
-            daysActiveCount: daysActiveCount ?? self.daysActiveCount
+            daysActiveCount: daysActiveCount ?? self.daysActiveCount,
+            lastCheckInDate: lastCheckInDate != nil ? lastCheckInDate! : self.lastCheckInDate,
+            lastCheckInScore: lastCheckInScore != nil ? lastCheckInScore! : self.lastCheckInScore
         )
     }
 }

@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v13), .iOS(.v16)],
     products: [.library(name: "YdsCore", targets: ["YdsCore"])],
     targets: [
-        .target(name: "YdsCore", path: "YdsApp", sources: ["Domain", "Data", "Presentation/Onboarding"]),
+        .target(name: "YdsCore", path: "YdsApp", sources: ["Domain", "Data", "Presentation/Onboarding", "Presentation/WeeklyCheckIn"]),
         .testTarget(name: "YdsCoreTests", dependencies: ["YdsCore"], path: "YdsAppTests")
     ]
 )

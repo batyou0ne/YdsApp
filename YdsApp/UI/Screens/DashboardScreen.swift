@@ -3,9 +3,11 @@ import SwiftUI
 /// Ana Ekran (Dashboard): Canlı Puan İbresi, Günün 15 Dakikalık Reçetesi (14 Adım) ve Soru Tipi Karnesi
 public struct DashboardScreen: View {
     @ObservedObject private var viewModel: DashboardViewModel
+    private let container: AppDependencyContainer
 
-    public init(viewModel: DashboardViewModel) {
+    public init(viewModel: DashboardViewModel, container: AppDependencyContainer = AppDependencyContainer()) {
         self.viewModel = viewModel
+        self.container = container
     }
 
     public var body: some View {
@@ -42,13 +44,16 @@ public struct DashboardScreen: View {
                     gaugeFraction: state.gaugeProgressFraction
                 )
 
-                // 2. Akademik Alan Filtre Çubuğu (Sağlık / Fen / Sosyal / Genel)
+                // 2. Haftalık Check-In Kartı
+                weeklyCheckInCard(state: state)
+
+                // 3. Akademik Alan Filtre Çubuğu (Sağlık / Fen / Sosyal / Genel)
                 academicTrackFilterBar(state: state)
 
-                // 3. Günün 15 Dakikalık Reçetesi (14 Adım + %50 Freemium Kilidi)
+                // 4. Günün 15 Dakikalık Reçetesi (14 Adım + %50 Freemium Kilidi)
                 dailyPrescriptionCard(state: state)
 
-                // 4. Soru Tipi Karnesi (80 Soruluk YDS/YÖKDİL Ağırlıklı)
+                // 5. Soru Tipi Karnesi (80 Soruluk YDS/YÖKDİL Ağırlıklı)
                 ScoreReportCardView(reportCard: state.reportCard)
             }
             .padding(18)
@@ -56,6 +61,14 @@ public struct DashboardScreen: View {
         .background(AppTheme.backgroundDark.ignoresSafeArea())
         .onAppear {
             viewModel.onEvent(.onAppear)
+        }
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { state.isWeeklyCheckInSheetPresented },
+                set: { if !$0 { viewModel.onEvent(.dismissWeeklyCheckIn) } }
+            )
+        ) {
+            WeeklyCheckInScreen(viewModel: WeeklyCheckInViewModel(container: container))
         }
         .sheet(
             isPresented: Binding(
@@ -276,5 +289,70 @@ public struct DashboardScreen: View {
                 .stroke(AppTheme.borderSubtle, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func weeklyCheckInCard(state: DashboardViewState) -> some View {
+        Button {
+            viewModel.onEvent(.openWeeklyCheckIn)
+        } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(state.checkInEligibility.isEligible ? AppTheme.Colors.primary100 : AppTheme.Colors.muted)
+                        .frame(width: 48, height: 48)
+
+                    Image(systemName: "calendar.badge.checkmark")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(state.checkInEligibility.isEligible ? AppTheme.Colors.primary700 : AppTheme.Colors.neutral500)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(state.checkInCardTitleTr)
+                            .font(AppTheme.Typography.bodyLarge)
+                            .fontWeight(.bold)
+                            .foregroundStyle(AppTheme.Colors.neutral900)
+
+                        Text(state.checkInEligibility.badgeTextTr)
+                            .font(.system(size: 9, weight: .heavy))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                state.checkInEligibility.isEligible
+                                    ? AppTheme.Colors.success.opacity(0.16)
+                                    : AppTheme.Colors.warning.opacity(0.16)
+                            )
+                            .foregroundStyle(
+                                state.checkInEligibility.isEligible ? AppTheme.Colors.success : AppTheme.Colors.warning
+                            )
+                            .clipShape(Capsule())
+                    }
+
+                    Text(state.checkInCardSubtitleTr)
+                        .font(AppTheme.Typography.caption)
+                        .foregroundStyle(AppTheme.Colors.neutral500)
+
+                    Text(state.lastCheckInScoreDisplayTr)
+                        .font(AppTheme.Typography.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(AppTheme.Colors.primary700)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppTheme.Colors.neutral500)
+            }
+            .padding(16)
+            .background(AppTheme.Colors.surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.card)
+                    .stroke(AppTheme.borderSubtle, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+            .glowShadow(AppTheme.Shadows.card)
+        }
+        .buttonStyle(.plain)
     }
 }

@@ -49,3 +49,10 @@ public protocol MistakeVaultRepository: Sendable {
     func recordMistake(question: SprintQuestion, selectedOption: QuestionOption, date: Date) async
     func markMistakeReviewed(mistakeId: String, answeredCorrectly: Bool) async
 }
+
+/// Haftalık Check-In mini deneme sonuçları veri erişim protokolü
+public protocol WeeklyCheckInRepository: Sendable {
+    func getCheckInReports() async -> [CheckInReport]
+    func getLatestReport() async -> CheckInReport?
+    func saveCheckInReport(_ report: CheckInReport) async
+}

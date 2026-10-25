@@ -10,10 +10,12 @@ public final class DashboardViewModel: ObservableObject {
     private let sentenceXRayRepository: any SentenceXRayRepository
     private let sprintQuestionRepository: any SprintQuestionRepository
     private let mistakeVaultRepository: any MistakeVaultRepository
+    private let weeklyCheckInRepository: any WeeklyCheckInRepository
 
     private let calculateScoreUseCase: CalculateEstimatedScoreUseCase
     private let generatePrescriptionUseCase: GenerateDailyPrescriptionUseCase
     private let checkEntitlementUseCase: CheckEntitlementUseCase
+    private let checkInEligibilityUseCase: CheckInEligibilityUseCase
     private let onRequestOnboardingReset: (@Sendable () -> Void)?
 
     public init(
@@ -27,9 +29,11 @@ public final class DashboardViewModel: ObservableObject {
         self.sentenceXRayRepository = container.sentenceXRayRepository
         self.sprintQuestionRepository = container.sprintQuestionRepository
         self.mistakeVaultRepository = container.mistakeVaultRepository
+        self.weeklyCheckInRepository = container.weeklyCheckInRepository
         self.calculateScoreUseCase = container.calculateEstimatedScoreUseCase
         self.generatePrescriptionUseCase = container.generateDailyPrescriptionUseCase
         self.checkEntitlementUseCase = container.checkEntitlementUseCase
+        self.checkInEligibilityUseCase = container.checkInEligibilityUseCase
         self.onRequestOnboardingReset = onRequestOnboardingReset
     }
 
@@ -60,6 +64,20 @@ public final class DashboardViewModel: ObservableObject {
 
         case .clearNavigationRequest:
             updateState(requestedNavigationTab: .some(nil))
+
+        case .openWeeklyCheckIn:
+            if state.checkInEligibility.isEligible {
+                updateState(isWeeklyCheckInSheetPresented: true)
+            } else {
+                updateState(
+                    isPaywallPresented: true,
+                    paywallTriggerReasonTr: state.checkInEligibility.reasonTr ?? "Haftalık Check-In denemesine hemen erişmek için Pro'ya geç."
+                )
+            }
+
+        case .dismissWeeklyCheckIn:
+            updateState(isWeeklyCheckInSheetPresented: false)
+            Task { await refreshDashboardData() }
 
         case .restartOnboardingDiagnostic:
             Task {
@@ -103,12 +121,19 @@ public final class DashboardViewModel: ObservableObject {
             mistakeItems: mistakes
         )
         let events = await userStudyRepository.getScoreEvents(since: nil)
+        let latestCheckIn = await weeklyCheckInRepository.getLatestReport()
+        let eligibility = checkInEligibilityUseCase.execute(
+            profile: profile,
+            lastReportDate: latestCheckIn?.date
+        )
 
         updateState(
             profile: profile,
             reportCard: reportCard,
             dailyPrescription: prescription,
-            recentScoreEvents: events
+            recentScoreEvents: events,
+            checkInEligibility: eligibility,
+            latestCheckInReport: .some(latestCheckIn)
         )
     }
 
@@ -239,7 +264,10 @@ public final class DashboardViewModel: ObservableObject {
         paywallTriggerReasonTr: String? = nil,
         workoutCompletionBannerTr: String?? = nil,
         requestedNavigationTab: AppMainTab?? = nil,
-        recentScoreEvents: [ScoreEvent]? = nil
+        recentScoreEvents: [ScoreEvent]? = nil,
+        checkInEligibility: CheckInEligibility? = nil,
+        latestCheckInReport: CheckInReport?? = nil,
+        isWeeklyCheckInSheetPresented: Bool? = nil
     ) {
         state = DashboardViewState(
             profile: profile ?? state.profile,
@@ -249,7 +277,10 @@ public final class DashboardViewModel: ObservableObject {
             paywallTriggerReasonTr: paywallTriggerReasonTr ?? state.paywallTriggerReasonTr,
             workoutCompletionBannerTr: workoutCompletionBannerTr ?? state.workoutCompletionBannerTr,
             requestedNavigationTab: requestedNavigationTab ?? state.requestedNavigationTab,
-            recentScoreEvents: recentScoreEvents ?? state.recentScoreEvents
+            recentScoreEvents: recentScoreEvents ?? state.recentScoreEvents,
+            checkInEligibility: checkInEligibility ?? state.checkInEligibility,
+            latestCheckInReport: latestCheckInReport != nil ? latestCheckInReport! : state.latestCheckInReport,
+            isWeeklyCheckInSheetPresented: isWeeklyCheckInSheetPresented ?? state.isWeeklyCheckInSheetPresented
         )
     }
 }

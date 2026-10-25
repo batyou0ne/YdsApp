@@ -39,6 +39,9 @@ public struct DashboardViewState: Equatable, Sendable {
     public let workoutCompletionBannerTr: String?
     public let requestedNavigationTab: AppMainTab?
     public let recentScoreEvents: [ScoreEvent]
+    public let checkInEligibility: CheckInEligibility
+    public let latestCheckInReport: CheckInReport?
+    public let isWeeklyCheckInSheetPresented: Bool
 
     public init(
         profile: UserStudyProfile = UserStudyProfile(hasCompletedOnboarding: true),
@@ -56,7 +59,10 @@ public struct DashboardViewState: Equatable, Sendable {
         paywallTriggerReasonTr: String = "Günlük reçetenin tamamını (%100 - 14 adım) ve sınırsız Cümle Röntgenini açmak için Pro'ya geç.",
         workoutCompletionBannerTr: String? = nil,
         requestedNavigationTab: AppMainTab? = nil,
-        recentScoreEvents: [ScoreEvent] = []
+        recentScoreEvents: [ScoreEvent] = [],
+        checkInEligibility: CheckInEligibility = CheckInEligibility(isEligible: true),
+        latestCheckInReport: CheckInReport? = nil,
+        isWeeklyCheckInSheetPresented: Bool = false
     ) {
         self.profile = profile
         self.reportCard = reportCard
@@ -66,6 +72,9 @@ public struct DashboardViewState: Equatable, Sendable {
         self.workoutCompletionBannerTr = workoutCompletionBannerTr
         self.requestedNavigationTab = requestedNavigationTab
         self.recentScoreEvents = recentScoreEvents
+        self.checkInEligibility = checkInEligibility
+        self.latestCheckInReport = latestCheckInReport
+        self.isWeeklyCheckInSheetPresented = isWeeklyCheckInSheetPresented
     }
 
     public var formattedCurrentScore: String {
@@ -122,6 +131,26 @@ public struct DashboardViewState: Equatable, Sendable {
             return "Ücretsiz Plan • İlk 7 Adım (%50) Açık • 8. Adımda Pro Kilidi"
         }
     }
+
+    public var checkInCardTitleTr: String {
+        checkInEligibility.isEligible ? "Haftalık Check-In Hazır!" : "Haftalık Check-In"
+    }
+
+    public var checkInCardSubtitleTr: String {
+        if checkInEligibility.isEligible {
+            return "15 soru • 20 dakika • Puanını kalibre et"
+        } else {
+            return "\(checkInEligibility.daysUntilNextAvailable) gün sonra tekrar açılacak"
+        }
+    }
+
+    public var lastCheckInScoreDisplayTr: String {
+        if let score = profile.lastCheckInScore ?? latestCheckInReport?.scoreAfter {
+            return String(format: "Son Check-In: %.2f puan", score)
+        } else {
+            return "Henüz Check-In çözülmedi"
+        }
+    }
 }
 
 /// Dashboard Kullanıcı Niyetleri (UDF UiEvent)
@@ -135,4 +164,6 @@ public enum DashboardUiEvent: Sendable {
     case upgradeSubscription(SubscriptionTier)
     case clearNavigationRequest
     case restartOnboardingDiagnostic
+    case openWeeklyCheckIn
+    case dismissWeeklyCheckIn
 }

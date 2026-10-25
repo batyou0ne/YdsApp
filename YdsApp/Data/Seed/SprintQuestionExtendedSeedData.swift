@@ -815,6 +815,201 @@ public enum SprintQuestionExtendedSeedData {
             correctOptionId: "B"
         ),
         SprintQuestion(
+            id: "cd-q6-easy",
+            category: .clozeTest,
+            sprintMode: .clozeAndDialogueSprint,
+            track: .naturalSciences,
+            difficultyBand: .easy,
+            timeLimitSeconds: 30,
+            stemText: "Cloze Test: The rapid expansion of renewable solar energy infrastructure has substantially contributed ____ a measurable decline in carbon emissions across industrialized nations over the past decade.",
+            highlightedClues: [
+                ClueSpan(id: "cd6e-c1", matchedSubstring: "contributed ____", clueType: .prepositionTrigger, explanationTr: "'contribute TO something' (bir şeye katkıda bulunmak / yol açmak)")
+            ],
+            options: [
+                QuestionOption(
+                    id: "A",
+                    text: "to",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Mükemmel! 'contribute to' ayrılmaz edat kalıbını anında yakaladın!",
+                        trapReasonTr: "Çeldirici edatlara takılmadan doğrudan doğru hedefe gittin.",
+                        winningRuleTr: "'Contribute TO', 'lead TO', 'attribute TO' yapıları her zaman 'TO' edatıyla kullanılır.",
+                        grammarRuleTag: "CLOZE_CONTRIBUTE_TO"
+                    )
+                ),
+                QuestionOption(
+                    id: "B",
+                    text: "for",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Sebep bildiren bir edat düşündün!",
+                        trapReasonTr: "Türkçede 'için katkı sağladı' denilse de İngilizcede 'contribute' fiili 'for' değil 'to' edatı ile birleşir.",
+                        winningRuleTr: "Contribute + TO kalıbıyla A şıkkı doğrudur.",
+                        grammarRuleTag: "CLOZE_CONTRIBUTE_TO"
+                    )
+                ),
+                QuestionOption(
+                    id: "C",
+                    text: "with",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Birliktelik edatını değerlendirdin!",
+                        trapReasonTr: "'Contribute with' yanlış kullanımdır; hedef/yönelme edatı 'to' gereklidir.",
+                        winningRuleTr: "Contribute + TO (A şıkkı).",
+                        grammarRuleTag: "CLOZE_CONTRIBUTE_TO"
+                    )
+                ),
+                QuestionOption(
+                    id: "D",
+                    text: "about",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Hakkında/ilgili anlamını test ettin!",
+                        trapReasonTr: "'Contribute' fiili 'about' edatını kesinlikle almaz.",
+                        winningRuleTr: "Contribute + TO ile A şıkkı seçilmeliydi.",
+                        grammarRuleTag: "CLOZE_CONTRIBUTE_TO"
+                    )
+                ),
+                QuestionOption(
+                    id: "E",
+                    text: "on",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Üzerine/konusunda edatını denedin!",
+                        trapReasonTr: "'Contribute' fiili 'on' edatıyla değil 'to' ile kullanılır.",
+                        winningRuleTr: "A şıkkındaki 'to' edatı tek doğru tercihtir.",
+                        grammarRuleTag: "CLOZE_CONTRIBUTE_TO"
+                    )
+                )
+            ],
+            correctOptionId: "A"
+        ),
+        SprintQuestion(
+            id: "cd-q6-med2",
+            category: .clozeTest,
+            sprintMode: .clozeAndDialogueSprint,
+            track: .socialSciences,
+            difficultyBand: .medium,
+            timeLimitSeconds: 35,
+            stemText: "Cloze Test: Early agrarian communities faced severe harvest volatility due to erratic rainfall; ____, they devised elaborate communal grain storage facilities to withstand prolonged periods of drought.",
+            highlightedClues: [
+                ClueSpan(id: "cd6m-c1", matchedSubstring: "erratic rainfall; ____, they devised", clueType: .conjunction, explanationTr: "Noktalı virgül ve virgül arasında sonuç bildiren geçiş zarfı (Adverbial Conjunction)")
+            ],
+            options: [
+                QuestionOption(
+                    id: "A",
+                    text: "however",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Geçiş zarfı noktalama işaretini doğru okudun!",
+                        trapReasonTr: "'However' zıtlık anlatır; oysa ürün dalgalanması (problem) ile tahıl ambarı inşa etme (çözüm/sonuç) arasında neden-sonuç bağı vardır.",
+                        winningRuleTr: "Neden-sonuç akışını kuran C şıkkındaki 'therefore' (bu nedenle) seçilmeliydi.",
+                        grammarRuleTag: "CLOZE_THEREFORE_VS_HOWEVER"
+                    )
+                ),
+                QuestionOption(
+                    id: "B",
+                    text: "otherwise",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Koşul bildiren geçiş zarfını inceledin!",
+                        trapReasonTr: "'Otherwise' (aksi takdirde) olumsuz bir hipotez gerektirir, burada ise gerçekleşen bir tarihsel çözüm anlatılıyor.",
+                        winningRuleTr: "Sonuç bağlayıcısı C şıkkı 'therefore'dur.",
+                        grammarRuleTag: "CLOZE_THEREFORE_VS_HOWEVER"
+                    )
+                ),
+                QuestionOption(
+                    id: "C",
+                    text: "therefore",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Harika tespit! Noktalı virgül (;) ve virgül (,) arasındaki 'bu yüzden / bundan dolayı' neden-sonuç geçişini hatasız yakaladın!",
+                        trapReasonTr: "'However' zıtlık tuzağına düşmedin.",
+                        winningRuleTr: "Problem -> Bu nedenle (Therefore/Consequently/Thus) -> Çözüm.",
+                        grammarRuleTag: "CLOZE_THEREFORE_VS_HOWEVER"
+                    )
+                ),
+                QuestionOption(
+                    id: "D",
+                    text: "on the contrary",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Zıtlık zarfını değerlendirdin!",
+                        trapReasonTr: "'On the contrary' önceki cümlenin tam tersini savunur, burada ise mantıksal bir sonuç vardır.",
+                        winningRuleTr: "C şıkkındaki 'therefore' doğru cevaptır.",
+                        grammarRuleTag: "CLOZE_THEREFORE_VS_HOWEVER"
+                    )
+                ),
+                QuestionOption(
+                    id: "E",
+                    text: "instead",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Alternatif zarfını sorguladın!",
+                        trapReasonTr: "'Instead' (bunun yerine) olumsuz bir ifadeden sonra alternatif sunar.",
+                        winningRuleTr: "C şıkkındaki 'therefore' seçilmeliydi.",
+                        grammarRuleTag: "CLOZE_THEREFORE_VS_HOWEVER"
+                    )
+                )
+            ],
+            correctOptionId: "C"
+        ),
+        SprintQuestion(
+            id: "cd-q6-hard",
+            category: .clozeTest,
+            sprintMode: .clozeAndDialogueSprint,
+            track: .healthSciences,
+            difficultyBand: .hard,
+            timeLimitSeconds: 45,
+            stemText: "Cloze Test: Given the sudden resurgence of virulent pathogenic strains in the isolated archipelago, epidemiologists concluded that the vector ____ imported via unauthorized maritime vessels rather than native avian species.",
+            highlightedClues: [
+                ClueSpan(id: "cd6h-c1", matchedSubstring: "concluded that the vector ____ imported", clueType: .mainVerb, explanationTr: "Geçmişe yönelik güçlü mantıksal çıkarım (Past Deduction Modal)")
+            ],
+            options: [
+                QuestionOption(
+                    id: "A",
+                    text: "should have been",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Past modal yapısına yönelmen doğru bir refleks!",
+                        trapReasonTr: "'Should have been' (taşınmış olmalıydı ama taşınmadı) bir pişmanlık veya yerine gelmemiş beklenti anlatır; burada ise bilimsel bir çıkarım vardır.",
+                        winningRuleTr: "Geçmişe dair 'kesinlikle böyle olmuş olmalı' çıkarımı D şıkkındaki 'must have been' ile yapılır.",
+                        grammarRuleTag: "CLOZE_MUST_HAVE_V3"
+                    )
+                ),
+                QuestionOption(
+                    id: "B",
+                    text: "would be",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Tense uyumunu gözettin!",
+                        trapReasonTr: "'Would be' geçmişte geleceği anlatır; oysa salgın çoktan başlamış ve kaynağı tespit edilmektedir.",
+                        winningRuleTr: "D şıkkındaki 'must have been' seçilmeliydi.",
+                        grammarRuleTag: "CLOZE_MUST_HAVE_V3"
+                    )
+                ),
+                QuestionOption(
+                    id: "C",
+                    text: "might be",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "İhtimal modalını düşündün!",
+                        trapReasonTr: "'Might be' şimdiki zaman veya gelecek ihtimalidir; 'concluded that' geçmiş zaman olduğu için geçmiş modal gerekir.",
+                        winningRuleTr: "Geçmişe yönelik güçlü çıkarım için D şıkkı 'must have been' gereklidir.",
+                        grammarRuleTag: "CLOZE_MUST_HAVE_V3"
+                    )
+                ),
+                QuestionOption(
+                    id: "D",
+                    text: "must have been",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Zirve refleks! Epidemiyologların 'concluded' (sonucuna vardı) çıkarım fiilini görüp geçmişe dönük kesin mantıksal çıkarım olan 'must have + V3' kalıbını eksiksiz buldun!",
+                        trapReasonTr: "'Should have' pişmanlık çeldiricisine kanmadın.",
+                        winningRuleTr: "Geçmişe dönük güçlü kanıt ve çıkarım = Must have + V3.",
+                        grammarRuleTag: "CLOZE_MUST_HAVE_V3"
+                    )
+                ),
+                QuestionOption(
+                    id: "E",
+                    text: "ought to be",
+                    distractorCoachFeedback: DistractorExplanation(
+                        praiseTextTr: "Gereklilik kipini değerlendirdin!",
+                        trapReasonTr: "'Ought to be' şimdiki/genel tavsiyedir, geçmişteki olayın çıkarımı için kullanılamaz.",
+                        winningRuleTr: "D şıkkındaki 'must have been' doğru yanıttır.",
+                        grammarRuleTag: "CLOZE_MUST_HAVE_V3"
+                    )
+                )
+            ],
+            correctOptionId: "D"
+        ),
+        SprintQuestion(
             id: "cd-q7",
             category: .sentenceCompletion,
             sprintMode: .clozeAndDialogueSprint,

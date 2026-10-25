@@ -328,6 +328,36 @@ public actor DefaultMistakeVaultRepository: MistakeVaultRepository {
     }
 }
 
+// MARK: - 6. DefaultWeeklyCheckInRepository
+public actor DefaultWeeklyCheckInRepository: WeeklyCheckInRepository {
+    private let storageKey = "yds.app.weekly_check_in_reports.v1"
+    private var reports: [CheckInReport]
+
+    public init() {
+        if let data = UserDefaults.standard.data(forKey: storageKey),
+           let decoded = try? JSONDecoder().decode([CheckInReport].self, from: data) {
+            self.reports = decoded
+        } else {
+            self.reports = []
+        }
+    }
+
+    public func getCheckInReports() async -> [CheckInReport] {
+        reports
+    }
+
+    public func getLatestReport() async -> CheckInReport? {
+        reports.last
+    }
+
+    public func saveCheckInReport(_ report: CheckInReport) async {
+        reports.append(report)
+        if let data = try? JSONEncoder().encode(reports) {
+            UserDefaults.standard.set(data, forKey: storageKey)
+        }
+    }
+}
+
 // MARK: - Dependency Container
 public struct AppDependencyContainer: Sendable {
     public let userStudyRepository: any UserStudyRepository
@@ -335,6 +365,7 @@ public struct AppDependencyContainer: Sendable {
     public let vocabularyRepository: any VocabularyRepository
     public let sprintQuestionRepository: any SprintQuestionRepository
     public let mistakeVaultRepository: any MistakeVaultRepository
+    public let weeklyCheckInRepository: any WeeklyCheckInRepository
 
     public let calculateEstimatedScoreUseCase: CalculateEstimatedScoreUseCase
     public let evaluateVocab3DMasteryUseCase: EvaluateVocab3DMasteryUseCase
@@ -342,6 +373,10 @@ public struct AppDependencyContainer: Sendable {
     public let generateDailyPrescriptionUseCase: GenerateDailyPrescriptionUseCase
     public let checkEntitlementUseCase: CheckEntitlementUseCase
     public let runAdaptiveOnboardingDiagnosticUseCase: RunAdaptiveOnboardingDiagnosticUseCase
+    public let buildWeeklyCheckInUseCase: BuildWeeklyCheckInUseCase
+    public let evaluateWeeklyCheckInUseCase: EvaluateWeeklyCheckInUseCase
+    public let checkInEligibilityUseCase: CheckInEligibilityUseCase
+    public let checkInReminderPolicy: CheckInReminderPolicy
 
     public init(
         userStudyRepository: any UserStudyRepository = DefaultUserStudyRepository(),
@@ -349,6 +384,7 @@ public struct AppDependencyContainer: Sendable {
         vocabularyRepository: any VocabularyRepository = DefaultVocabularyRepository(),
         sprintQuestionRepository: any SprintQuestionRepository = DefaultSprintQuestionRepository(),
         mistakeVaultRepository: any MistakeVaultRepository = DefaultMistakeVaultRepository(),
+        weeklyCheckInRepository: any WeeklyCheckInRepository = DefaultWeeklyCheckInRepository(),
         runAdaptiveOnboardingDiagnosticUseCase: RunAdaptiveOnboardingDiagnosticUseCase = RunAdaptiveOnboardingDiagnosticUseCase(
             engine: AdaptiveDiagnosticEngine(randomness: SystemRandomnessProvider())
         )
@@ -358,6 +394,7 @@ public struct AppDependencyContainer: Sendable {
         self.vocabularyRepository = vocabularyRepository
         self.sprintQuestionRepository = sprintQuestionRepository
         self.mistakeVaultRepository = mistakeVaultRepository
+        self.weeklyCheckInRepository = weeklyCheckInRepository
 
         self.calculateEstimatedScoreUseCase = CalculateEstimatedScoreUseCase()
         self.evaluateVocab3DMasteryUseCase = EvaluateVocab3DMasteryUseCase()
@@ -365,5 +402,9 @@ public struct AppDependencyContainer: Sendable {
         self.generateDailyPrescriptionUseCase = GenerateDailyPrescriptionUseCase()
         self.checkEntitlementUseCase = CheckEntitlementUseCase()
         self.runAdaptiveOnboardingDiagnosticUseCase = runAdaptiveOnboardingDiagnosticUseCase
+        self.buildWeeklyCheckInUseCase = BuildWeeklyCheckInUseCase()
+        self.evaluateWeeklyCheckInUseCase = EvaluateWeeklyCheckInUseCase()
+        self.checkInEligibilityUseCase = CheckInEligibilityUseCase()
+        self.checkInReminderPolicy = CheckInReminderPolicy()
     }
 }
