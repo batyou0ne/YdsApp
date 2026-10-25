@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct YdsAppApp: App {
+    private let container = AppDependencyContainer()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(container: container)
         }
     }
 }

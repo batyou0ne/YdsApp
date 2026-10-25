@@ -80,6 +80,7 @@ public final class DashboardViewModel: ObservableObject {
                     weakestCategories: current.weakestCategories
                 )
                 await userStudyRepository.saveUserProfile(resetProfile)
+                updateState(profile: resetProfile)
                 onRequestOnboardingReset?()
             }
         }

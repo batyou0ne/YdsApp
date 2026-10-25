@@ -82,7 +82,21 @@ public final class OnboardingViewModel: ObservableObject {
 
     private func loadDiagnosticQuestions() async {
         let questions = await sprintQuestionRepository.getDiagnosticQuestions()
-        updateState(diagnosticQuestions: questions)
+        if state.isCompleted {
+            updateState(
+                currentStep: .step1ExamAndTrack,
+                diagnosticQuestions: questions,
+                currentQuestionIndex: 0,
+                selectedOptionIdForCurrentQuestion: .some(nil),
+                isShowingInstantCoachFeedback: false,
+                recordedAnswers: [],
+                diagnosticResult: .some(nil),
+                previewPrescription: .some(nil),
+                isCompleted: false
+            )
+        } else {
+            updateState(diagnosticQuestions: questions)
+        }
     }
 
     private func handleProceedToNextStep() {
