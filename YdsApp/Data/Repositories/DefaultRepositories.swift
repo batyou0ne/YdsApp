@@ -318,13 +318,17 @@ public struct AppDependencyContainer: Sendable {
     public let evaluateDiagnosticTestUseCase: EvaluateDiagnosticTestUseCase
     public let generateDailyPrescriptionUseCase: GenerateDailyPrescriptionUseCase
     public let checkEntitlementUseCase: CheckEntitlementUseCase
+    public let runAdaptiveOnboardingDiagnosticUseCase: RunAdaptiveOnboardingDiagnosticUseCase
 
     public init(
         userStudyRepository: any UserStudyRepository = DefaultUserStudyRepository(),
         sentenceXRayRepository: any SentenceXRayRepository = DefaultSentenceXRayRepository(),
         vocabularyRepository: any VocabularyRepository = DefaultVocabularyRepository(),
         sprintQuestionRepository: any SprintQuestionRepository = DefaultSprintQuestionRepository(),
-        mistakeVaultRepository: any MistakeVaultRepository = DefaultMistakeVaultRepository()
+        mistakeVaultRepository: any MistakeVaultRepository = DefaultMistakeVaultRepository(),
+        runAdaptiveOnboardingDiagnosticUseCase: RunAdaptiveOnboardingDiagnosticUseCase = RunAdaptiveOnboardingDiagnosticUseCase(
+            engine: AdaptiveDiagnosticEngine(randomness: SystemRandomnessProvider())
+        )
     ) {
         self.userStudyRepository = userStudyRepository
         self.sentenceXRayRepository = sentenceXRayRepository
@@ -337,5 +341,6 @@ public struct AppDependencyContainer: Sendable {
         self.evaluateDiagnosticTestUseCase = EvaluateDiagnosticTestUseCase()
         self.generateDailyPrescriptionUseCase = GenerateDailyPrescriptionUseCase()
         self.checkEntitlementUseCase = CheckEntitlementUseCase()
+        self.runAdaptiveOnboardingDiagnosticUseCase = runAdaptiveOnboardingDiagnosticUseCase
     }
 }
