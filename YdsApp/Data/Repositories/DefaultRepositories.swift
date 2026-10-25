@@ -116,7 +116,26 @@ public actor DefaultSprintQuestionRepository: SprintQuestionRepository {
     }
 
     public func getDiagnosticQuestions() async -> [SprintQuestion] {
-        questions.filter(\.isDiagnosticOnboarding)
+        questions.filter {
+            $0.isDiagnosticOnboarding && !$0.id.hasPrefix(SprintQuestionAdaptivePoolSeedData.idPrefix)
+        }
+    }
+
+    public func getDiagnosticQuestions(
+        band: QuestionDifficultyBand,
+        category: QuestionCategory?,
+        track: AcademicTrack,
+        excluding excludedQuestionIds: Set<String>
+    ) async -> [SprintQuestion] {
+        let pool = questions.filter { question in
+            question.isDiagnosticOnboarding
+                && question.difficultyBand == band
+                && !excludedQuestionIds.contains(question.id)
+                && (category == nil || question.category == category)
+        }
+        guard track != .generalAcademic else { return pool }
+        let trackMatches = pool.filter { $0.track == track }
+        return trackMatches + pool.filter { $0.track != track }
     }
 
     public func getQuestions(

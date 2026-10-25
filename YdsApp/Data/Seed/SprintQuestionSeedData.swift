@@ -8,7 +8,8 @@ public enum SprintQuestionSeedData {
         translationHuntQuestions +
         polarityRadarQuestions +
         SprintQuestionExtendedSeedData.irrelevantDetectiveQuestions +
-        SprintQuestionExtendedSeedData.clozeAndDialogueQuestions
+        SprintQuestionExtendedSeedData.clozeAndDialogueQuestions +
+        SprintQuestionAdaptivePoolSeedData.allQuestions
 
     // MARK: - 1. 5 SORULUK STRATEJİK SEVİYE TESPİTİ (ONBOARDING DIAGNOSTIC)
     public static let diagnosticQuestions: [SprintQuestion] = [
@@ -19,6 +20,8 @@ public enum SprintQuestionSeedData {
             sprintMode: .diagnosticMiniTest,
             track: .healthSciences,
             isDiagnosticOnboarding: true,
+            // Zorluk: tek bağlaç boşluğu, klasik polarite okuma
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: "____ early-stage pancreatic tumors rarely produce noticeable clinical symptoms, the majority of cases are diagnosed only after metastasis has occurred.",
             highlightedClues: [
@@ -89,6 +92,8 @@ public enum SprintQuestionSeedData {
             sprintMode: .diagnosticMiniTest,
             track: .naturalSciences,
             isDiagnosticOnboarding: true,
+            // Zorluk: susceptible to / fluctuations in: yaygın akademik kolokasyon
+            difficultyBand: .medium,
             timeLimitSeconds: 30,
             stemText: "Coral reef ecosystems are extraordinarily susceptible ____ even minor fluctuations ____ ocean surface temperatures.",
             highlightedClues: [
@@ -157,6 +162,8 @@ public enum SprintQuestionSeedData {
             sprintMode: .diagnosticMiniTest,
             track: .socialSciences,
             isDiagnosticOnboarding: true,
+            // Zorluk: While kalıplı B2 düzeyi çeviri
+            difficultyBand: .medium,
             timeLimitSeconds: 25,
             stemText: "While digital archives have democratized access to historical manuscripts, historians warn that the context of physical artifacts cannot be fully replicated online.",
             highlightedClues: [
@@ -225,6 +232,8 @@ public enum SprintQuestionSeedData {
             sprintMode: .diagnosticMiniTest,
             track: .healthSciences,
             isDiagnosticOnboarding: true,
+            // Zorluk: Although karşıtlığı + akademik fiil seçimi (B2)
+            difficultyBand: .medium,
             timeLimitSeconds: 30,
             stemText: "Although the new analgesic drug effectively ____ acute postoperative pain, its potential to cause hepatic toxicity limits its long-term prescription.",
             highlightedClues: [
@@ -295,6 +304,8 @@ public enum SprintQuestionSeedData {
             sprintMode: .diagnosticMiniTest,
             track: .socialSciences,
             isDiagnosticOnboarding: true,
+            // Zorluk: participle reduction + provide X with Y birleşimi (C1)
+            difficultyBand: .hard,
             timeLimitSeconds: 35,
             stemText: "Artifacts ____ from the Bronze Age shipwreck off the coast of Uluburun ____ unprecedented insight into ancient Mediterranean trade routes.",
             highlightedClues: [
@@ -364,6 +375,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .healthSciences,
+            // Zorluk: Although: temel zıtlık bağlacı
+            difficultyBand: .easy,
             timeLimitSeconds: 10,
             stemText: "Although genetic predisposition plays a significant role in autoimmune diseases, environmental triggers determine when the clinical symptoms actually emerge.",
             highlightedClues: [
@@ -429,6 +442,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .naturalSciences,
+            // Zorluk: Unless: temel koşul bağlacı
+            difficultyBand: .easy,
             timeLimitSeconds: 10,
             stemText: "Unless global carbon emissions are halved within the next decade, irreversible melting of polar ice sheets will accelerate coastal flooding worldwide.",
             highlightedClues: [
@@ -494,6 +509,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .socialSciences,
+            // Zorluk: Not only...but also: devrik yapı (B2)
+            difficultyBand: .medium,
             timeLimitSeconds: 10,
             stemText: "Not only did the Industrial Revolution transform rural agrarian societies into urban centers, but it also fundamentally altered family structures.",
             highlightedClues: [
@@ -559,6 +576,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .healthSciences,
+            // Zorluk: Since: temel neden bağlacı
+            difficultyBand: .easy,
             timeLimitSeconds: 10,
             stemText: "Since the human brain consumes nearly twenty percent of the body's metabolic energy, even brief interruptions in cerebral blood flow result in irreversible neuronal loss.",
             highlightedClues: [
@@ -624,6 +643,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .naturalSciences,
+            // Zorluk: So + sıfat devrik yapısı, yoğun terminoloji (C1)
+            difficultyBand: .hard,
             timeLimitSeconds: 10,
             stemText: "So sensitive are gravitational wave detectors that they can measure spatial distortions smaller than the width of a single proton.",
             highlightedClues: [
@@ -689,6 +710,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .socialSciences,
+            // Zorluk: Much as: nadir zıtlık bağlacı (C1)
+            difficultyBand: .hard,
             timeLimitSeconds: 10,
             stemText: "Much as ancient empires relied on military coercion to expand their borders, long-term stability always required administrative integration and local trade.",
             highlightedClues: [
@@ -754,6 +777,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .healthSciences,
+            // Zorluk: What-cleft yapısı + uzun özne (C1)
+            difficultyBand: .hard,
             timeLimitSeconds: 10,
             stemText: "What makes antibiotic resistance particularly alarming to epidemiologists is that horizontal gene transfer allows bacteria to share defense mechanisms across species.",
             highlightedClues: [
@@ -819,6 +844,8 @@ public enum SprintQuestionSeedData {
             category: .translation,
             sprintMode: .translation10SecHunt,
             track: .naturalSciences,
+            // Zorluk: Hardly...when: olumsuz devrik yapı (C1)
+            difficultyBand: .hard,
             timeLimitSeconds: 10,
             stemText: "Hardly had the lunar lander touched down on the crater's rim when mission control detected an unexpected drop in solar panel voltage.",
             highlightedClues: [
@@ -888,6 +915,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .healthSciences,
+            // Zorluk: While: temel zıtlık bağlacı
+            difficultyBand: .easy,
             timeLimitSeconds: 35,
             stemText: "____ robotic surgery systems significantly reduce intraoperative blood loss and recovery times, their prohibitive acquisition cost prevents widespread adoption in rural hospitals.",
             highlightedClues: [
@@ -955,6 +984,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .naturalSciences,
+            // Zorluk: Despite: temel ad öbeği + zıtlık
+            difficultyBand: .easy,
             timeLimitSeconds: 35,
             stemText: "____ the extreme atmospheric pressure and sulfuric acid clouds on Venus, several Soviet Venera probes managed to transmit surface images before melting.",
             highlightedClues: [
@@ -1022,6 +1053,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .socialSciences,
+            // Zorluk: noktalı virgül sonrası zarf bağlaç (however) ayrımı
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: "Oral histories passed down through generations are often dismissed by positivists as subjective; ____, modern anthropologists regard them as indispensable records of marginalized communities.",
             highlightedClues: [
@@ -1089,6 +1122,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .healthSciences,
+            // Zorluk: While: temel zıtlık bağlacı
+            difficultyBand: .easy,
             timeLimitSeconds: 35,
             stemText: "____ broad-spectrum antibiotics eradicate pathogenic bacteria rapidly, they simultaneously destroy beneficial commensal flora in the digestive tract.",
             highlightedClues: [
@@ -1156,6 +1191,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .naturalSciences,
+            // Zorluk: noktalı virgül + whereas/in contrast ayrımı
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: "Lithium-ion batteries suffer from thermal runaway risks at high temperatures; ____, solid-state batteries utilize non-flammable ceramic electrolytes that remain stable.",
             highlightedClues: [
@@ -1223,6 +1260,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .socialSciences,
+            // Zorluk: Despite/In spite of + isim öbeği, uzun kök
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: "____ strict censorship laws enacted by the regime, underground printing presses continued to circulate reformist pamphlets across the capital.",
             highlightedClues: [
@@ -1290,6 +1329,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .healthSciences,
+            // Zorluk: for/as ile neden bağlama, virgül kullanımı
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: "Early clinical intervention is crucial in sepsis cases, ____ every hour of delayed antibiotic administration decreases patient survival probability by nearly eight percent.",
             highlightedClues: [
@@ -1357,6 +1398,8 @@ public enum SprintQuestionSeedData {
             category: .conjunction,
             sprintMode: .conjunctionPolarityRadar,
             track: .naturalSciences,
+            // Zorluk: noktalı virgül sonrası however türü zarf bağlaç
+            difficultyBand: .medium,
             timeLimitSeconds: 35,
             stemText: " Desalination plants provide arid coastal nations with a reliable freshwater supply; ____, the discharge of hyper-saline brine poses severe threats to marine benthic ecosystems.",
             highlightedClues: [

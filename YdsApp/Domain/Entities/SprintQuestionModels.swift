@@ -229,6 +229,47 @@ public struct QuestionOption: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
+/// Adaptif teşhis için soru zorluk bandı (iOS <-> Android 1:1 Enum)
+public enum QuestionDifficultyBand: String, Codable, CaseIterable, Equatable, Sendable {
+    case easy = "EASY"       // A2/B1, 35-50 puan bandı
+    case medium = "MEDIUM"   // B1/B2, 50-65 puan bandı
+    case hard = "HARD"       // C1, 65-85 puan bandı
+
+    public var titleTr: String {
+        switch self {
+        case .easy: return "Kolay"
+        case .medium: return "Orta"
+        case .hard: return "Zor"
+        }
+    }
+
+    /// Bandı temsil eden tahmini sınav puanı (0.00 - 100.00)
+    public var representativeScore: Double {
+        switch self {
+        case .easy: return 42.5
+        case .medium: return 57.5
+        case .hard: return 75.0
+        }
+    }
+
+    public var cefrHintTr: String {
+        switch self {
+        case .easy: return "A2/B1 · 35–50 puan bandı"
+        case .medium: return "B1/B2 · 50–65 puan bandı"
+        case .hard: return "C1 · 65–85 puan bandı"
+        }
+    }
+
+    /// `irtDifficulty` verilmediğinde banttan türetilen varsayılan zorluk parametresi (b)
+    public var defaultIRTDifficulty: Double {
+        switch self {
+        case .easy: return -1.0
+        case .medium: return 0.0
+        case .hard: return 1.0
+        }
+    }
+}
+
 /// Mikro-Sprint ve Seviye Tespit sorusu
 public struct SprintQuestion: Identifiable, Codable, Equatable, Sendable {
     public let id: String
@@ -243,6 +284,12 @@ public struct SprintQuestion: Identifiable, Codable, Equatable, Sendable {
     public let expectedRightPolarity: PolarityType?
     public let options: [QuestionOption]
     public let correctOptionId: String
+    /// Adaptif teşhis zorluk bandı (JSON'da yoksa `.medium`)
+    public let difficultyBand: QuestionDifficultyBand
+    /// IRT zorluk parametresi (-2.0...+2.0, JSON'da yoksa 0.0)
+    public let irtDifficulty: Double
+
+    public static let irtDifficultyRange: ClosedRange<Double> = -2.0...2.0
 
     public init(
         id: String,
@@ -250,6 +297,8 @@ public struct SprintQuestion: Identifiable, Codable, Equatable, Sendable {
         sprintMode: MicroSprintMode,
         track: AcademicTrack,
         isDiagnosticOnboarding: Bool = false,
+        difficultyBand: QuestionDifficultyBand = .medium,
+        irtDifficulty: Double? = nil,
         timeLimitSeconds: Int,
         stemText: String,
         highlightedClues: [ClueSpan],
@@ -270,6 +319,58 @@ public struct SprintQuestion: Identifiable, Codable, Equatable, Sendable {
         self.expectedRightPolarity = expectedRightPolarity
         self.options = options
         self.correctOptionId = correctOptionId
+        self.difficultyBand = difficultyBand
+        self.irtDifficulty = Self.clampIRT(irtDifficulty ?? difficultyBand.defaultIRTDifficulty)
+    }
+
+    private static func clampIRT(_ value: Double) -> Double {
+        min(max(value, irtDifficultyRange.lowerBound), irtDifficultyRange.upperBound)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, category, sprintMode, track, isDiagnosticOnboarding, timeLimitSeconds
+        case stemText, highlightedClues, expectedLeftPolarity, expectedRightPolarity
+        case options, correctOptionId, difficultyBand, irtDifficulty
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try c.decode(String.self, forKey: .id)
+        self.category = try c.decode(QuestionCategory.self, forKey: .category)
+        self.sprintMode = try c.decode(MicroSprintMode.self, forKey: .sprintMode)
+        self.track = try c.decode(AcademicTrack.self, forKey: .track)
+        self.isDiagnosticOnboarding = try c.decode(Bool.self, forKey: .isDiagnosticOnboarding)
+        self.timeLimitSeconds = try c.decode(Int.self, forKey: .timeLimitSeconds)
+        self.stemText = try c.decode(String.self, forKey: .stemText)
+        self.highlightedClues = try c.decode([ClueSpan].self, forKey: .highlightedClues)
+        self.expectedLeftPolarity = try c.decodeIfPresent(PolarityType.self, forKey: .expectedLeftPolarity)
+        self.expectedRightPolarity = try c.decodeIfPresent(PolarityType.self, forKey: .expectedRightPolarity)
+        self.options = try c.decode([QuestionOption].self, forKey: .options)
+        self.correctOptionId = try c.decode(String.self, forKey: .correctOptionId)
+        let band = try c.decodeIfPresent(QuestionDifficultyBand.self, forKey: .difficultyBand) ?? .medium
+        self.difficultyBand = band
+        // Alan yoksa banttan türetilir; eski JSON'da band de yoksa .medium -> 0.0
+        self.irtDifficulty = Self.clampIRT(
+            try c.decodeIfPresent(Double.self, forKey: .irtDifficulty) ?? band.defaultIRTDifficulty
+        )
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(category, forKey: .category)
+        try c.encode(sprintMode, forKey: .sprintMode)
+        try c.encode(track, forKey: .track)
+        try c.encode(isDiagnosticOnboarding, forKey: .isDiagnosticOnboarding)
+        try c.encode(timeLimitSeconds, forKey: .timeLimitSeconds)
+        try c.encode(stemText, forKey: .stemText)
+        try c.encode(highlightedClues, forKey: .highlightedClues)
+        try c.encodeIfPresent(expectedLeftPolarity, forKey: .expectedLeftPolarity)
+        try c.encodeIfPresent(expectedRightPolarity, forKey: .expectedRightPolarity)
+        try c.encode(options, forKey: .options)
+        try c.encode(correctOptionId, forKey: .correctOptionId)
+        try c.encode(difficultyBand, forKey: .difficultyBand)
+        try c.encode(irtDifficulty, forKey: .irtDifficulty)
     }
 
     public var correctOption: QuestionOption? {

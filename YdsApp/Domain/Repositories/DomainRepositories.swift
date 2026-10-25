@@ -23,7 +23,16 @@ public protocol VocabularyRepository: Sendable {
 
 /// Seviye Tespit ve Mikro-Sprint soruları veri erişim protokolü
 public protocol SprintQuestionRepository: Sendable {
+    /// Legacy 5 soruluk sabit onboarding teşhisi (adaptif havuz hariç)
     func getDiagnosticQuestions() async -> [SprintQuestion]
+    /// Adaptif teşhis sorgusu: bant + kategori + track'e göre, `excluding` id'leri hariç tutarak.
+    /// Track eşleşenler önce gelir; havuz boşalırsa track filtresi gevşetilir.
+    func getDiagnosticQuestions(
+        band: QuestionDifficultyBand,
+        category: QuestionCategory?,
+        track: AcademicTrack,
+        excluding excludedQuestionIds: Set<String>
+    ) async -> [SprintQuestion]
     func getQuestions(
         for track: AcademicTrack,
         mode: MicroSprintMode?,
