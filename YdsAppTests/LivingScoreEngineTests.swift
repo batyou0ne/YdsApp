@@ -5,10 +5,18 @@ final class LivingScoreEngineTests: XCTestCase {
     private var engine: CalculateEstimatedScoreUseCase!
     private var initialRecords: [CategoryMasteryRecord]!
 
+    private let scoreEventsStorageKey = "yds.app.score_events.v1"
+
     override func setUp() {
         super.setUp()
+        UserDefaults.standard.removeObject(forKey: scoreEventsStorageKey)
         engine = CalculateEstimatedScoreUseCase()
         initialRecords = MistakeVaultSeedData.defaultCategoryMasteries
+    }
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: scoreEventsStorageKey)
+        super.tearDown()
     }
 
     // MARK: - 1. Zorluk Ağırlıkları (easy 0.10, medium 0.15, hard 0.25)
